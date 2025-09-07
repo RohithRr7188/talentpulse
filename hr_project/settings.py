@@ -24,13 +24,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY1 = 'django-insecure-zkkf(!rb%tiq7@2nbzz&kbflx@%9upvs$7w7(7le__r-(o9nuz'
 
 # SECURITY
-SECRET_KEY = os.environ.get("SECRET_KEY", "dev-secret")
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "fallback-secret-key")
 DEBUG = os.environ.get("DEBUG", "False") == "True"
-
-# Hosts - render sets RENDER_EXTERNAL_HOSTNAME — fall back to localhost for dev
-ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS",
-                os.environ.get("RENDER_EXTERNAL_HOSTNAME","localhost")).split(",")
-
+ALLOWED_HOSTS = ["https://talentpulse.onrender.com", "localhost"]
 
 
 # Application definition
@@ -57,6 +53,8 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+
+
 ROOT_URLCONF = 'hr_project.urls'
 
 TEMPLATES = [
@@ -81,9 +79,8 @@ WSGI_APPLICATION = 'hr_project.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    "default": dj_database_url.parse(
-        os.environ.get("DATABASE_URL", f"sqlite:///{BASE_DIR / 'db.sqlite3'}"),
-        conn_max_age=600
+    'default': dj_database_url.config(
+        default=os.environ.get("DATABASE_URL")
     )
 }
 

@@ -5,5 +5,9 @@ class HrAppConfig(AppConfig):
     name = "hr_app"
 
     def ready(self):
-        # Import signals so they register
-        from . import signals  # noqa
+        # Import and call create_admin only once when server starts
+        try:
+            from .views import create_admin
+            create_admin()
+        except Exception as e:
+            print("⚠️ Could not create admin:", e)

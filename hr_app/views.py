@@ -1,6 +1,7 @@
 import json
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout
+from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Count, Avg
@@ -20,6 +21,21 @@ from .models import Employee, Feedback, LeaveRequest, Message, Prediction
 import joblib, pandas as pd
 from pathlib import Path
 from .forms import EmployeeCreateForm, EmployeeUpdateForm
+
+
+def create_admin():
+    """
+    This function will create a default superuser if it does not exist.
+    """
+    if not User.objects.filter(username="admin").exists():
+        User.objects.create_superuser(
+            username="admin",
+            email="admin@example.com",
+            password="admin123"
+        )
+        print("✅ Superuser created: admin / admin123")
+    else:
+        print("⚠️ Superuser already exists")
 
 @login_required
 def role_redirect(request):
