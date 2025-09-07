@@ -1,0 +1,53 @@
+{% extends "hr_app/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">📊 Prediction Results</h2>
+
+    {% if predictions %}
+    <table class="table table-bordered shadow">
+        <thead class="thead-dark">
+            <tr>
+                <th>Employee</th>
+                <th>Retention Risk</th>
+                <th>Promotion Eligibility</th>
+                <th>Sentiment</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in predictions %}
+            <tr>
+                <td>{{ p.employee }}</td>
+                <td>
+                    {% if p.retention == "High Risk" %}
+                    <span class="badge bg-danger">High Risk</span>
+                    {% else %}
+                    <span class="badge bg-success">Stable</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if p.promotion == "Eligible" %}
+                    <span class="badge bg-primary">Eligible</span>
+                    {% else %}
+                    <span class="badge bg-secondary">Not Eligible</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if p.sentiment == "Positive" %}
+                    <span class="badge bg-success">Positive</span>
+                    {% elif p.sentiment == "Negative" %}
+                    <span class="badge bg-danger">Negative</span>
+                    {% else %}
+                    <span class="badge bg-warning text-dark">Neutral</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="alert alert-info">No predictions available. Please upload a CSV.</div>
+    {% endif %}
+</div>
+{% endblock %}

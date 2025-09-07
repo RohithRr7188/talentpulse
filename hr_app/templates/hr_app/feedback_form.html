@@ -1,0 +1,15 @@
+{% extends "hr_app/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>📝 Submit Feedback for {{ employee.name }}</h2>
+
+    <form method="post" class="card p-4 shadow-sm">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Submit Feedback</button>
+        <a href="{% url 'employee_directory' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

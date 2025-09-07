@@ -1,0 +1,16 @@
+{% extends "hr_app/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">📝 Apply for Leave</h2>
+
+    <form method="POST" class="card p-4 shadow">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <button type="submit" class="btn btn-primary">Submit Request</button>
+        <a href="{% url 'employee_dashboard' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

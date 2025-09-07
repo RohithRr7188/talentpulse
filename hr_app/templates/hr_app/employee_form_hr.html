@@ -1,0 +1,13 @@
+{% extends "hr_app/base.html" %}
+{% block content %}
+<div class="container">
+    <h4 class="mb-3">{% if create %}Add Employee + Credentials{% else %}Edit Employee{% endif %}</h4>
+    <form method="post" class="card p-3 shadow-sm">{% csrf_token %}
+        {{ form.as_p }}
+        <div class="d-flex gap-2">
+            <button class="btn btn-primary">Save</button>
+            <a class="btn btn-secondary" href="{% url 'employee_directory' %}">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

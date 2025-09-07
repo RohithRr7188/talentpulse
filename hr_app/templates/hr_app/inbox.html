@@ -1,0 +1,38 @@
+{% extends "hr_app/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">📥 Inbox</h2>
+
+    <!-- Buttons Row -->
+    <div class="d-flex gap-2 mb-3">
+        <a href="{% url 'send_message' %}" class="btn btn-outline-success">
+            ✉️ Compose Message
+        </a>
+        {% if user.profile.is_hr %}
+        <a href="{% url 'export_messages_csv' %}" class="btn btn-outline-success">
+            ⬇ Export Messages
+        </a>
+        {% endif %}
+    </div>
+
+    <!-- Messages List -->
+    {% if messages %}
+    <ul class="list-group shadow">
+        {% for msg in messages %}
+        <li class="list-group-item {% if not msg.is_read %}fw-bold{% endif %}">
+            <strong>From:</strong> {{ msg.sender.username }} <br>
+            <strong>Subject:</strong> {{ msg.subject }} <br>
+            <p>{{ msg.body|truncatewords:20 }}</p>
+            <small class="text-muted">
+                Sent on {{ msg.created_at|date:"M d, Y H:i" }}
+            </small>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <div class="alert alert-info">No messages yet.</div>
+    {% endif %}
+</div>
+{% endblock %}

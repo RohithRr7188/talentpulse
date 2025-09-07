@@ -1,0 +1,128 @@
+{% extends "hr_app/base.html" %}
+{% block content %}
+<div class="container py-4">
+
+    <!-- Welcome -->
+    <h3 class="mb-4">👋 Welcome, <span class="text-primary fw-bold">{{ employee.name }}</span></h3>
+
+    <!-- Quick Actions -->
+    <div class="row g-4">
+        <div class="col-12 col-md-6 col-lg-4">
+            <a class="card dashboard-card shadow-sm text-decoration-none h-100" href="{% url 'leave_apply' %}">
+                <div class="card-body text-center">
+                    <i class="bi bi-calendar-plus fs-1 text-primary"></i>
+                    <h5 class="mt-2">Request Leave</h5>
+                    <p class="text-muted small">Submit a new leave request</p>
+                </div>
+            </a>
+        </div>
+        <div class="col-6 col-md-3 col-lg-4">
+            <a class="card dashboard-card shadow-sm text-decoration-none h-100" href="{% url 'predict_retention' %}">
+                <div class="card-body text-center">
+                    <i class="bi bi-shield-check fs-1 text-success"></i>
+                    <h5 class="mt-2">Retention</h5>
+                    <p class="text-muted small">Check risk</p>
+                </div>
+            </a>
+        </div>
+        <div class="col-6 col-md-3 col-lg-4">
+            <a class="card dashboard-card shadow-sm text-decoration-none h-100" href="{% url 'predict_promotion' %}">
+                <div class="card-body text-center">
+                    <i class="bi bi-graph-up-arrow fs-1 text-warning"></i>
+                    <h5 class="mt-2">Promotion</h5>
+                    <p class="text-muted small">Check eligibility</p>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Leave Requests & Feedback -->
+    <div class="row g-4 mt-1">
+        <!-- Leave Requests -->
+        <div class="col-12 col-lg-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-light fw-semibold">📅 My Leave Requests</div>
+                <div class="card-body table-responsive">
+                    <table class="table table-sm align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>From</th>
+                                <th>To</th>
+                                <th>Status</th>
+                                <th>Days</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for l in leaves %}
+                            <tr>
+                                <td>{{ l.start_date }}</td>
+                                <td>{{ l.end_date }}</td>
+                                <td>
+                                    {% if l.status == "Approved" %}
+                                    <span class="badge bg-success">{{ l.status }}</span>
+                                    {% elif l.status == "Pending" %}
+                                    <span class="badge bg-warning text-dark">{{ l.status }}</span>
+                                    {% else %}
+                                    <span class="badge bg-danger">{{ l.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ l.days }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-muted text-center">No requests yet</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feedback -->
+        <div class="col-12 col-lg-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-light fw-semibold">💬 My Feedback</div>
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush">
+                        {% for f in feedbacks %}
+                        <li class="list-group-item">
+                            <small class="text-muted">{{ f.created_at|date:"Y-m-d" }}</small><br>
+                            <span
+                                class="fw-bold {% if f.sentiment == 'Positive' %}text-success{% elif f.sentiment == 'Negative' %}text-danger{% else %}text-secondary{% endif %}">
+                                {{ f.sentiment }}
+                            </span>: {{ f.text }}
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item text-muted text-center">No feedback yet.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="mt-5 text-center text-muted small">
+        <hr>
+        <p>© {{ now|date:"Y" }} Employee Portal · Built by Rohith kumar</p>
+    </footer>
+</div>
+
+<!-- Styling -->
+<style>
+    .dashboard-card {
+        border-radius: 12px;
+        transition: all 0.2s ease-in-out;
+    }
+
+    .dashboard-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-header {
+        border-radius: 12px 12px 0 0;
+    }
+</style>
+{% endblock %}

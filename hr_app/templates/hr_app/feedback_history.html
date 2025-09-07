@@ -1,0 +1,54 @@
+{% extends "hr_app/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>📜 Feedback History for {{ employee.name }}</h2>
+
+    {% if feedbacks %}
+    <table class="table table-bordered table-hover mt-3">
+        <thead class="table-light">
+            <tr>
+                <th>Date</th>
+                <th>Feedback</th>
+                <th>Sentiment</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for fb in feedbacks %}
+            <tr>
+                <td>{{ fb.created_at|date:"M d, Y H:i" }}</td>
+                <td>{{ fb.text }}</td>
+                <td>
+                    {% if fb.sentiment == "Positive" %}
+                    <span class="badge bg-success">😊 Positive</span>
+                    {% elif fb.sentiment == "Negative" %}
+                    <span class="badge bg-danger">☹️ Negative</span>
+                    {% else %}
+                    <span class="badge bg-secondary">😐 Neutral</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="alert alert-info mt-3">
+        No feedback submitted yet for this employee.
+    </div>
+    {% endif %}
+    <div class="d-flex gap-2 mt-3">
+        {% if user.profile.is_hr %}
+        <a href="{% url 'export_feedback_csv' %}" class="btn btn-outline-info">
+            ⬇ Export Feedback
+        </a>
+        {% endif %}
+
+        <a href="{% url 'employee_directory' %}" class="btn btn-outline-primary">
+            ⬅ Back to Directory
+        </a>
+    </div>
+
+
+</div>
+{% endblock %}

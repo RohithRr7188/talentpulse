@@ -1,0 +1,22 @@
+{% extends "hr_app/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">📂 Bulk Employee Upload</h2>
+
+    <div class="alert alert-info">
+        Upload a CSV file containing employee details.
+        Required columns:
+        <code>EmployeeNumber, EmployeeName, Department, Age, MonthlyIncome, YearsAtCompany</code>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data" class="card p-4 shadow">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <button type="submit" class="btn btn-primary">Upload & Save</button>
+        <a href="{% url 'employee_directory' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

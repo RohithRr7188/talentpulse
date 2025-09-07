@@ -1,0 +1,30 @@
+{% extends "hr_app/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">✉️ Send Message</h2>
+
+    <form method="POST" class="card p-4 shadow">
+        {% csrf_token %}
+
+        <div class="mb-3">
+            {{ form.receiver.label_tag }}
+            {{ form.receiver }}
+        </div>
+
+        <div class="mb-3">
+            {{ form.subject.label_tag }}
+            {{ form.subject }}
+        </div>
+
+        <div class="mb-3">
+            {{ form.body.label_tag }}
+            {{ form.body }}
+        </div>
+
+        <button type="submit" class="btn btn-primary">Send</button>
+        <a href="{% url 'inbox' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends "hr_app/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">✅ Manage Leave Requests</h2>
+
+    {% if requests %}
+    <table class="table table-striped shadow">
+        <thead class="thead-dark">
+            <tr>
+                <th>Employee</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Reason</th>
+                <th>Status</th>
+                <th>HR Comment</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for req in requests %}
+            <tr>
+                <td>{{ req.employee.name }}</td>
+                <td>{{ req.start_date }}</td>
+                <td>{{ req.end_date }}</td>
+                <td>{{ req.reason }}</td>
+                <td>
+                    <span class="badge 
+                        {% if req.status == 'Approved' %} bg-success
+                        {% elif req.status == 'Rejected' %} bg-danger
+                        {% else %} bg-warning text-dark
+                        {% endif %}">
+                        {{ req.status }}
+                    </span>
+                </td>
+                <td>{{ req.hr_comment|default:"-" }}</td>
+                <td>
+                    {% if req.status == "Pending" %}
+                    <form method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="leave_id" value="{{ req.id }}">
+                        <textarea name="hr_comment" placeholder="Comment..." class="form-control mb-2"></textarea>
+                        <button type="submit" name="action" value="Approved"
+                            class="btn btn-sm btn-success">Approve</button>
+                        <button type="submit" name="action" value="Rejected"
+                            class="btn btn-sm btn-danger">Reject</button>
+                    </form>
+                    {% else %}
+                    <span class="text-muted">Processed</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="alert alert-info">No leave requests available.</div>
+    {% endif %}
+</div>
+{% endblock %}

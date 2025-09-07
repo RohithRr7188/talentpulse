@@ -1,0 +1,150 @@
+{% extends "hr_app/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">📊 HR Analytics Dashboard</h2>
+
+    <!-- KPI cards here... -->
+
+    <div class="row">
+        <!-- Department Chart -->
+        <div class="col-md-6">
+            <div class="card shadow mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Employees by Department</h5>
+                    <canvas id="deptChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Leave Chart -->
+        <div class="col-md-6">
+            <div class="card shadow mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Leave Requests</h5>
+                    <canvas id="leaveChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Sentiment Chart -->
+        <div class="col-md-6">
+            <div class="card shadow mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Feedback Sentiment</h5>
+                    <canvas id="sentimentChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="sentimentModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="sentimentModalLabel">Feedback Messages</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <ul id="feedbackList" class="list-group"></ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Retention Prediction -->
+    <div class="col-md-6">
+        <div class="card shadow p-4 mb-4">
+            <h4>🔮 Predict Employee Retention</h4>
+            <p>Estimate if an employee is at risk of leaving.</p>
+            <a href="{% url 'predict_retention' %}" class="btn btn-danger">Go to Retention Predictor</a>
+        </div>
+    </div>
+
+    <!-- Promotion Prediction -->
+    <div class="col-md-6">
+        <div class="card shadow p-4 mb-4">
+            <h4>🚀 Predict Employee Promotion</h4>
+            <p>Check eligibility for promotion using ML model.</p>
+            <a href="{% url 'predict_promotion' %}" class="btn btn-primary">Go to Promotion Predictor</a>
+        </div>
+    </div>
+</div>
+
+
+<!-- Data -->
+{{ dept_labels|json_script:"dept-labels" }}
+{{ dept_counts|json_script:"dept-counts" }}
+{{ leave_labels|json_script:"leave-labels" }}
+{{ leave_counts|json_script:"leave-counts" }}
+{{ sentiment_labels|json_script:"sentiment-labels" }}
+{{ sentiment_counts|json_script:"sentiment-counts" }}
+{{ sentiment_messages|json_script:"sentiment-messages" }}
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const deptLabels = JSON.parse(document.getElementById("dept-labels").textContent);
+    const deptCounts = JSON.parse(document.getElementById("dept-counts").textContent);
+    const leaveLabels = JSON.parse(document.getElementById("leave-labels").textContent);
+    const leaveCounts = JSON.parse(document.getElementById("leave-counts").textContent);
+    const sentimentLabels = JSON.parse(document.getElementById("sentiment-labels").textContent);
+    const sentimentCounts = JSON.parse(document.getElementById("sentiment-counts").textContent);
+    const sentimentMessages = JSON.parse(document.getElementById("sentiment-messages").textContent);
+
+    // Department Chart
+    new Chart(document.getElementById('deptChart'), {
+        type: 'bar',
+        data: { labels: deptLabels, datasets: [{ label: "Employees", data: deptCounts, backgroundColor: "rgba(54, 162, 235, 0.6)" }] }
+    });
+
+    // Leave Chart
+    new Chart(document.getElementById('leaveChart'), {
+        type: 'pie',
+        data: { labels: leaveLabels, datasets: [{ data: leaveCounts, backgroundColor: ["#4bc0c0", "#ff6384", "#ffce56"] }] }
+    });
+
+    // Sentiment Chart with Click
+    const sentimentChart = new Chart(document.getElementById('sentimentChart'), {
+        type: 'doughnut',
+        data: {
+            labels: sentimentLabels,
+            datasets: [{ data: sentimentCounts, backgroundColor: ["#28a745", "#ffc107", "#dc3545"] }]
+        },
+        options: {
+            onClick: (evt, elements) => {
+                if (elements.length > 0) {
+                    const index = elements[0].index;
+                    const label = sentimentLabels[index];
+                    const messages = sentimentMessages[label];
+
+                    // Populate modal list
+                    const list = document.getElementById("feedbackList");
+                    list.innerHTML = "";
+                    if (messages.length > 0) {
+                        messages.forEach(msg => {
+                            let li = document.createElement("li");
+                            li.classList.add("list-group-item");
+                            li.textContent = msg;
+                            list.appendChild(li);
+                        });
+                    } else {
+                        list.innerHTML = "<li class='list-group-item text-muted'>No feedback available</li>";
+                    }
+
+                    // Show modal
+                    const modal = new bootstrap.Modal(document.getElementById('sentimentModal'));
+                    document.getElementById("sentimentModalLabel").textContent = `${label} Feedback`;
+                    modal.show();
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

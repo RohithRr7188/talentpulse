@@ -1,0 +1,25 @@
+{% extends "hr_app/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">📤 Sent Messages</h2>
+
+    <a href="{% url 'send_message' %}" class="btn btn-success mb-3">✉️ Compose Message</a>
+
+    {% if messages %}
+    <ul class="list-group shadow">
+        {% for msg in messages %}
+        <li class="list-group-item">
+            <strong>To:</strong> {{ msg.receiver.username }} <br>
+            <strong>Subject:</strong> {{ msg.subject }} <br>
+            <strong>Message:</strong> {{ msg.body }} <br>
+            <small class="text-muted">Sent on {{ msg.created_at|date:"M d, Y H:i" }}</small>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <div class="alert alert-info">No sent messages yet.</div>
+    {% endif %}
+</div>
+{% endblock %}

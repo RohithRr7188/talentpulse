@@ -1,0 +1,156 @@
+{% extends "hr_app/base.html" %}
+{% block content %}
+<div class="container">
+    <h3 class="mb-3">📊 HR Dashboard</h3>
+
+    <!-- KPIs -->
+    <div class="row g-3">
+        <div class="col-6 col-md-3">
+            <div class="card shadow-sm text-center p-3">
+                <div class="fw-semibold">Employees</div>
+                <div class="fs-3">{{ total_employees }}</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card shadow-sm text-center p-3">
+                <div class="fw-semibold">Retention Risks</div>
+                <div class="fs-3">{{ retention_risks }}</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card shadow-sm text-center p-3">
+                <div class="fw-semibold">Promotions</div>
+                <div class="fs-3">{{ promotions }}</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <a class="card shadow-sm text-center p-3 text-decoration-none" href="{% url 'leave_manage' %}">
+                <div class="fw-semibold">Manage Leave</div>
+                <div class="small text-muted">Tap to review</div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="row g-3 mt-1">
+        <div class="col-12 col-lg-6">
+            <div class="card shadow-sm p-3" style="height:500px;">
+                <div class="fw-semibold mb-2">Employees by Department</div>
+                <canvas id="deptChart" height="240"></canvas>
+            </div>
+        </div>
+        <div class="col-12 col-lg-6">
+            <div class="card shadow-sm p-3" style="height:500px;">
+                <div class="fw-semibold mb-2">Leave Requests</div>
+                <canvas id="leaveChart" height="240"></canvas>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="card shadow-sm p-3">
+                <div class="fw-semibold mb-2">Feedback Sentiment</div>
+                <div id="sentiment-container" style="position: relative; height: 260px;">
+                    <canvas id="sentimentChart" height="240"></canvas>
+                    <div id="no-feedback" class="text-muted text-center" style="display:none; padding-top: 80px;">
+                        No feedback submitted yet
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row g-3 mt-1">
+        <div class="col-12 col-md-4">
+            <a href="{% url 'employee_directory' %}" class="btn btn-primary w-100">👥 Manage Employees</a>
+        </div>
+        <div class="col-12 col-md-4">
+            <a href="{% url 'predict_retention' %}" class="btn btn-outline-secondary w-100">🔮 Retention Prediction</a>
+        </div>
+        <div class="col-12 col-md-4">
+            <a href="{% url 'predict_promotion' %}" class="btn btn-outline-secondary w-100">⤴ Promotion Prediction</a>
+        </div>
+    </div>
+</div>
+
+<!-- JSON Data -->
+{{ dept_labels|json_script:"dept-labels" }}
+{{ dept_counts|json_script:"dept-counts" }}
+{{ leave_labels|json_script:"leave-labels" }}
+{{ leave_counts|json_script:"leave-counts" }}
+{{ sentiment_labels|json_script:"sentiment-labels" }}
+{{ sentiment_counts|json_script:"sentiment-counts" }}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Load JSON
+    const deptLabels = JSON.parse(document.getElementById("dept-labels").textContent);
+    const deptCounts = JSON.parse(document.getElementById("dept-counts").textContent);
+    const leaveLabels = JSON.parse(document.getElementById("leave-labels").textContent);
+    const leaveCounts = JSON.parse(document.getElementById("leave-counts").textContent);
+    const sentimentLabels = JSON.parse(document.getElementById("sentiment-labels").textContent);
+    const sentimentCounts = JSON.parse(document.getElementById("sentiment-counts").textContent);
+
+    // Department → Bar
+    new Chart(document.getElementById('deptChart'), {
+        type: 'bar',
+        data: {
+            labels: deptLabels,
+            datasets: [{
+                label: "Employees",
+                data: deptCounts,
+                backgroundColor: "#42a5f5"
+            }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+    });
+
+    // Leave → Donut
+    new Chart(document.getElementById('leaveChart'), {
+        type: 'doughnut',
+        data: {
+            labels: leaveLabels,
+            datasets: [{
+                data: leaveCounts,
+                backgroundColor: ['#4caf50', '#ffeb3b', '#f44336'] // Approved, Pending, Rejected
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '60%',
+            plugins: { legend: { position: 'bottom' } }
+        }
+    });
+
+    // Sentiment → Horizontal stacked bar
+    const totalFeedback = sentimentCounts.reduce((a, b) => a + b, 0) || 1;
+    const sentimentPercent = sentimentCounts.map(v => (v / totalFeedback) * 100);
+
+    new Chart(document.getElementById('sentimentChart'), {
+        type: 'bar',
+        data: {
+            labels: ["Feedback"],
+            datasets: [
+                { label: 'Positive', data: [sentimentPercent[0]], backgroundColor: '#4caf50' },
+                { label: 'Neutral', data: [sentimentPercent[1]], backgroundColor: '#ffeb3b' },
+                { label: 'Negative', data: [sentimentPercent[2]], backgroundColor: '#f44336' }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: 'y',
+            plugins: { legend: { position: 'bottom' } },
+            scales: {
+                x: {
+                    stacked: true,
+                    max: 100,
+                    ticks: { callback: v => v + "%" }
+                },
+                y: { stacked: true }
+            }
+        }
+    });
+</script>
+{% endblock %}
