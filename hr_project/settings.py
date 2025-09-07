@@ -26,7 +26,8 @@ SECRET_KEY1 = 'django-insecure-zkkf(!rb%tiq7@2nbzz&kbflx@%9upvs$7w7(7le__r-(o9nu
 # SECURITY
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "fallback-secret-key")
 DEBUG = os.environ.get("DEBUG", "False") == "True"
-ALLOWED_HOSTS = ["https://talentpulse.onrender.com", "localhost"]
+ALLOWED_HOSTS = ["*"]
+
 
 
 # Application definition
